@@ -1,7 +1,7 @@
 import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QGridLayout
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QGridLayout, QFrame
 from PyQt5.QtGui import QPixmap, QPainter, QPen
 
 
@@ -11,21 +11,22 @@ class Menu(QMainWindow):
         super().__init__()  # super to main window
         self.drawing = False
         self.lastPoint = QPoint()
-        self.grid = QGridLayout()
-        label = QtWidgets.QLabel()
-        self.image = QPixmap("./skeld_map.png")
-        label.setPixmap(self.image)
-        self.grid.addWidget(label, 1, 2)  # import our map
-        self.colorSelector = QPushButton("Color")
-        self.grid.addWidget(self.colorSelector, 1, 1)
-        self.setGeometry(100, 100, 500, 300)
-        self.resize(self.image.width(), self.image.height())  # resize otherwise we can't draw precisely
 
+        self.frameButtons = QFrame()
+
+        self.mapLabel = QtWidgets.QLabel()
+        image = QPixmap("C:/Users/Themy/Desktop/pythonProject3/skeld_map.png")
+        self.mapLabel.setPixmap(image)
+
+        self.colorSelector = QPushButton("Color")
+        self.frameButtons.drawFrame()
+
+        self.setGeometry(100, 100, 1500, 800)
         self.show()
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.drawPixmap(self.rect(), self.image)
+        painter.drawPixmap(self.mapLabel.pixmap().rect(), self.mapLabel.pixmap())
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -34,7 +35,7 @@ class Menu(QMainWindow):
 
     def mouseMoveEvent(self, event):
         if event.buttons() and Qt.LeftButton and self.drawing:
-            painter = QPainter(self.image)
+            painter = QPainter(self.mapLabel.pixmap())
             painter.setPen(QPen(Qt.red, 3, Qt.SolidLine))
             painter.drawLine(self.lastPoint, event.pos())
             self.lastPoint = event.pos()
