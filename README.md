@@ -5,6 +5,6 @@ Among Us application to draw on a map during emergency meetings.
 - [X] Change pen color
 - [X] Simple UI
 - [X] Add painter
-- [ ] Place Among Us characters
-- [ ] Syncronisation between players
+- [ ] Place Among Us characters (Click to place)
+- [ ] Syncronisation between players across PCs (hard)
 - [ ] To be determined

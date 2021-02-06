@@ -4,7 +4,8 @@
 """
 
 import sys
-import dragDrop
+import crewPlace
+import collections
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, QPoint, QRect
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QGridLayout, QFrame, QVBoxLayout, QGroupBox, \
@@ -19,16 +20,24 @@ class Menu(QMainWindow):
         self.drawing = False
         self.lastPoint = QPoint()
         self.frameButtons = QFrame()
+        self.crewPlace = False
+        self.playerPins = []
+        self.colorList = [Qt.red, Qt.blue, QColor(255, 165, 0), QColor(255, 255, 255), Qt.black, QColor(0, 255, 255),
+                          Qt.yellow, QColor(255, 192, 203), QColor(128, 0, 128), QColor(0, 255, 0), QColor(0, 128, 0),
+                          QColor(165, 42, 42)]
 
         # Map image
         self.mapLabel = QtWidgets.QLabel()
-        oldimage = QPixmap("C:/Users/Themy/Desktop/pythonProject3/skeld_map.png")
+        oldimage = QPixmap("./skeld_map.png")
         image = oldimage.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.mapLabel.setPixmap(image)
 
         # Buttons
         self.buttonBox = QGroupBox(self)
         self.colorLayout = QHBoxLayout(self.buttonBox)
+
+        crewmateSelector = QPushButton("Place crewmate", self.buttonBox)
+        crewmateSelector.clicked.connect(lambda: crewPlace.crewPlaceMode(self))
 
         redSelector = QPushButton(self.buttonBox)
         redSelector.setStyleSheet("background-color: red")
@@ -78,6 +87,7 @@ class Menu(QMainWindow):
         brownSelector.setStyleSheet("background-color: brown")
         brownSelector.clicked.connect(lambda: self.changeColor(QColor(165, 42, 42)))
 
+        self.colorLayout.addWidget(crewmateSelector)
         self.colorLayout.addWidget(redSelector)
         self.colorLayout.addWidget(blueSelector)
         self.colorLayout.addWidget(orangeSelector)
@@ -94,7 +104,8 @@ class Menu(QMainWindow):
         self.buttonBox.setGeometry(QRect(0, self.mapLabel.pixmap().height(), self.mapLabel.pixmap().width(), 50))
 
         # Window settings
-        self.setGeometry(QRect(0, 0, self.mapLabel.pixmap().width(), self.mapLabel.pixmap().height() + 100))
+        self.setGeometry(
+            QRect(0, 0, self.mapLabel.pixmap().width(), self.mapLabel.pixmap().height() + self.buttonBox.height()))
         self.show()
 
     def changeColor(self, color):
@@ -105,9 +116,19 @@ class Menu(QMainWindow):
         painter.drawPixmap(self.mapLabel.pixmap().rect(), self.mapLabel.pixmap())
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
+        index = 0
+        if event.button() == Qt.LeftButton & self.crewPlace is False:
             self.drawing = True
             self.lastPoint = event.pos()
+        if event.button() == Qt.LeftButton & self.crewPlace is True:
+            i = 0
+            for color in self.colorList:
+                if color is self.currentColor:
+                    index = i
+                else:
+                    i += 1
+            labelToMove = self.playerPins[index]
+            crewPixmap = QPixmap("./crewmate.png")
 
     def mouseMoveEvent(self, event):
         if event.buttons() and Qt.LeftButton and self.drawing:
@@ -123,7 +144,6 @@ class Menu(QMainWindow):
 
 
 if __name__ == '__main__':
-
     app = QApplication(sys.argv)
 
     mainMenu = Menu()
