@@ -25,6 +25,7 @@ class Menu(QMainWindow):
         self.colorList = [Qt.red, Qt.blue, QColor(255, 165, 0), QColor(255, 255, 255), Qt.black, QColor(0, 255, 255),
                           Qt.yellow, QColor(255, 192, 203), QColor(128, 0, 128), QColor(0, 255, 0), QColor(0, 128, 0),
                           QColor(165, 42, 42)]
+        self.labelToMove = None
 
         # Map image
         self.mapLabel = QtWidgets.QLabel()
@@ -110,25 +111,24 @@ class Menu(QMainWindow):
 
     def changeColor(self, color):
         self.currentColor = color
+        if crewPlace is True:
+            crewPlace.changeCrewColor(self)
+            print("bang")
+
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.drawPixmap(self.mapLabel.pixmap().rect(), self.mapLabel.pixmap())
 
     def mousePressEvent(self, event):
-        index = 0
-        if event.button() == Qt.LeftButton & self.crewPlace is False:
+        if (event.button() == Qt.LeftButton) & self.crewPlace is False:
             self.drawing = True
             self.lastPoint = event.pos()
-        if event.button() == Qt.LeftButton & self.crewPlace is True:
-            i = 0
-            for color in self.colorList:
-                if color is self.currentColor:
-                    index = i
-                else:
-                    i += 1
-            labelToMove = self.playerPins[index]
-            crewPixmap = QPixmap("./crewmate.png")
+        if (event.button() == Qt.LeftButton) & self.crewPlace is True:
+            self.labelToMove.setGeometry(QRect(event.pos().x(),event.pos().y(),self.labelToMove.pixmap().width(),
+                                         self.labelToMove.pixmap().height()))
+            self.labelToMove.show()
+
 
     def mouseMoveEvent(self, event):
         if event.buttons() and Qt.LeftButton and self.drawing:
