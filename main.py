@@ -1,16 +1,18 @@
 """
+
 @author: Maxime-Missichini
-@version: 0.025
+@version: 0.027
+
 """
 
 import sys
 import crewPlace
 import collections
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, QPoint, QRect
+from PyQt5.QtCore import Qt, QPoint, QRect, QSize
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QGridLayout, QFrame, QVBoxLayout, QGroupBox, \
     QHBoxLayout, QLabel
-from PyQt5.QtGui import QPixmap, QPainter, QPen, QColor
+from PyQt5.QtGui import QPixmap, QPainter, QPen, QColor, QIcon, QImage
 
 
 class Menu(QMainWindow):
@@ -21,6 +23,7 @@ class Menu(QMainWindow):
         self.lastPoint = QPoint()
         self.frameButtons = QFrame()
         self.crewPlace = False
+        self.currentColor = QColor("Transparent")
         self.playerPins = []
         self.colorList = [Qt.red, Qt.blue, QColor(255, 165, 0), QColor(255, 255, 255), Qt.black, QColor(0, 255, 255),
                           Qt.yellow, QColor(255, 192, 203), QColor(128, 0, 128), QColor(0, 255, 0), QColor(0, 128, 0),
@@ -28,10 +31,11 @@ class Menu(QMainWindow):
         self.labelToMove = None
 
         # Map image
-        self.mapLabel = QtWidgets.QLabel()
+        self.mapLabel = QLabel()
         oldimage = QPixmap("./skeld_map.png")
         image = oldimage.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.mapLabel.setPixmap(image)
+        self.savedPixmap = image
 
         # Buttons
         self.buttonBox = QGroupBox(self)
@@ -88,6 +92,9 @@ class Menu(QMainWindow):
         brownSelector.setStyleSheet("background-color: brown")
         brownSelector.clicked.connect(lambda: self.changeColor(QColor(165, 42, 42)))
 
+        eraserSelector = QPushButton("Erase",self.buttonBox)
+        eraserSelector.clicked.connect(lambda: self.erase())
+
         self.colorLayout.addWidget(crewmateSelector)
         self.colorLayout.addWidget(redSelector)
         self.colorLayout.addWidget(blueSelector)
@@ -101,20 +108,27 @@ class Menu(QMainWindow):
         self.colorLayout.addWidget(limeSelector)
         self.colorLayout.addWidget(greenSelector)
         self.colorLayout.addWidget(brownSelector)
+        self.colorLayout.addWidget(eraserSelector)
 
         self.buttonBox.setGeometry(QRect(0, self.mapLabel.pixmap().height(), self.mapLabel.pixmap().width(), 50))
 
         # Window settings
         self.setGeometry(
             QRect(0, 0, self.mapLabel.pixmap().width(), self.mapLabel.pixmap().height() + self.buttonBox.height()))
+        self.setFixedSize(self.mapLabel.pixmap().width(), self.mapLabel.pixmap().height() + self.buttonBox.height())
+        self.setWindowTitle("CrewMap | @author : Maxime Missichini")
+        self.setWindowIcon(QIcon("./assets/icon.png"))
         self.show()
+
 
     def changeColor(self, color):
         self.currentColor = color
-        if crewPlace is True:
+        if self.crewPlace is True:
             crewPlace.changeCrewColor(self)
-            print("bang")
 
+    def erase(self):
+        self.mapLabel.setPixmap(self.savedPixmap)
+        self.update()
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -125,10 +139,9 @@ class Menu(QMainWindow):
             self.drawing = True
             self.lastPoint = event.pos()
         if (event.button() == Qt.LeftButton) & self.crewPlace is True:
-            self.labelToMove.setGeometry(QRect(event.pos().x(),event.pos().y(),self.labelToMove.pixmap().width(),
-                                         self.labelToMove.pixmap().height()))
+            self.labelToMove.setGeometry(QRect(event.pos().x()-20,event.pos().y()-20,
+            self.labelToMove.pixmap().width(),self.labelToMove.pixmap().height()))
             self.labelToMove.show()
-
 
     def mouseMoveEvent(self, event):
         if event.buttons() and Qt.LeftButton and self.drawing:
@@ -136,7 +149,9 @@ class Menu(QMainWindow):
             painter.setPen(QPen(self.currentColor, 3, Qt.SolidLine))
             painter.drawLine(self.lastPoint, event.pos())
             self.lastPoint = event.pos()
+            painter.restore()
             self.update()
+
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -147,8 +162,6 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     mainMenu = Menu()
-
     # default color to avoid crash
-    mainMenu.currentColor = Qt.red
 
     sys.exit(app.exec_())
