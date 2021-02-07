@@ -3,22 +3,17 @@
 @author: Maxime-Missichini
 
 """
-import sys
-
-from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, QPoint, QRect
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QGridLayout, QFrame, QVBoxLayout, QGroupBox, \
     QHBoxLayout, QLabel
 from PyQt5.QtGui import QPixmap, QPainter, QPen, QColor
-
-import main
 
 
 def crewPlaceMode(Menu):
 
     if Menu.crewPlace is False:
         Menu.crewPlace = True
-
+        Menu.stateLabel.setText("Place Crewmate mode")
         # Creating one label for each color, we store it in an array because a player can have 12 pins max
         redLabel = QLabel(Menu)
         redLabel.setGeometry(0,0,100,100)
@@ -77,9 +72,7 @@ def crewPlaceMode(Menu):
 
     else:
         Menu.crewPlace = False
-        # Temporary
-        for widg in Menu.playerPins:
-            widg.destroy()
+        Menu.stateLabel.setText("Draw mode")
 
 
 def changeCrewColor(Menu):

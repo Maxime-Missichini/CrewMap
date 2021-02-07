@@ -1,16 +1,16 @@
 """
 
 @author: Maxime-Missichini
-@version: 0.0292
+@version: 0.0293
 
 """
 
 import sys
-import time
+
+from PyQt5.QtMultimedia import QSound
 
 import crewPlace
 import chooseMap
-from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, QPoint, QRect, QSize, QEventLoop
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QGridLayout, QFrame, QVBoxLayout, QGroupBox, \
     QHBoxLayout, QLabel, QAction
@@ -24,6 +24,7 @@ class Menu(QMainWindow):
         self.drawing = False
         self.lastPoint = QPoint()
         self.frameButtons = QFrame()
+
         self.crewPlace = False
         image = QPixmap()
         self.map = image.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.FastTransformation)
@@ -39,6 +40,12 @@ class Menu(QMainWindow):
         # Map image
         self.mapLabel = QLabel()
         self.mapLabel.setPixmap(self.map)
+        self.stateLabel = QLabel("Draw mode",self)
+        self.stateLabel.setStyleSheet("background-color: white")
+        self.stateLabel.setAlignment(Qt.AlignCenter)
+        self.stateLabel.setGeometry(QRect(int(1366/2)-60, 10, 120, self.stateLabel.height()+5))
+        self.stateLabel.show()
+
 
         # Buttons
         self.buttonBox = QGroupBox(self)
@@ -113,20 +120,27 @@ class Menu(QMainWindow):
         self.colorLayout.addWidget(brownSelector)
         self.colorLayout.addWidget(eraserSelector)
 
-        self.buttonBox.setGeometry(QRect(0, 680, 1200, 50))
+        self.buttonBox.setGeometry(QRect(0, 768, 1366, 50))
 
         # Menubar
         self.menu = self.menuBar()
         quitMenu = self.menu.addMenu('&File')
+        helpMenu = self.menu.addMenu('&Help')
+        secret = QAction('&Help',self)
+        helpMenu.addAction(secret)
+        secret.triggered.connect(self.secret)
         exitAct = QAction('&Exit', self)
         quitMenu.addAction(exitAct)
         exitAct.triggered.connect(app.quit)
 
         # Window settings
-        self.setGeometry(QRect(0, 0, 1200, 730))
-        self.setFixedSize(1200, self.height())
+        self.setGeometry(QRect(0, 0, 1366, 768+50))
+        self.setFixedSize(1366, 768+50)
         self.setWindowTitle("CrewMap | @author : Maxime Missichini")
         self.setWindowIcon(QIcon("./assets/icon.png"))
+
+    def secret(self):
+        QSound.play("./assets/secret.wav")
 
     def createMap(self):
         painter = QPainter(self)
@@ -142,6 +156,8 @@ class Menu(QMainWindow):
         painter = QPainter(self)
         self.mapLabel.setPixmap(self.map)
         painter.drawPixmap(self.mapLabel.pixmap().rect(), self.mapLabel.pixmap())
+        for label in self.playerPins:
+            label.setGeometry(QRect(0,0,0,0))
         self.update()
 
     def paintEvent(self, event):

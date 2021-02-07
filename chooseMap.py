@@ -1,10 +1,5 @@
-import sys
-
-from PyQt5 import QtCore
 from PyQt5.QtCore import QRect, Qt, pyqtSignal
 from PyQt5.QtGui import QPixmap
-
-import main
 from PyQt5.QtWidgets import QMessageBox, QPushButton, QLayout, QHBoxLayout, QMainWindow, QGroupBox
 
 
@@ -44,18 +39,18 @@ class ChooseMap(QMainWindow):
 
     def pickSkeld(self,Menu):
         image = QPixmap("./assets/maps/skeld.png")
-        Menu.map = image.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.FastTransformation)
+        Menu.map = image
         self.done.emit()
         self.close()
 
     def pickMira(self,Menu):
         image = QPixmap("./assets/maps/mira.png")
-        Menu.map = image.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.FastTransformation)
+        Menu.map = image
         self.done.emit()
         self.close()
 
     def pickPolus(self,Menu):
         image = QPixmap("./assets/maps/polus.png")
-        Menu.map = image.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.FastTransformation)
+        Menu.map = image
         self.done.emit()
         self.close()
