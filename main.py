@@ -1,7 +1,7 @@
 """
 
 @author: Maxime-Missichini
-@version: 0.029
+@version: 0.0292
 
 """
 
@@ -11,9 +11,9 @@ import time
 import crewPlace
 import chooseMap
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, QPoint, QRect, QSize
+from PyQt5.QtCore import Qt, QPoint, QRect, QSize, QEventLoop
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QGridLayout, QFrame, QVBoxLayout, QGroupBox, \
-    QHBoxLayout, QLabel
+    QHBoxLayout, QLabel, QAction
 from PyQt5.QtGui import QPixmap, QPainter, QPen, QColor, QIcon, QImage
 
 
@@ -25,7 +25,7 @@ class Menu(QMainWindow):
         self.lastPoint = QPoint()
         self.frameButtons = QFrame()
         self.crewPlace = False
-        image = QPixmap("./assets/maps/skeld.png")
+        image = QPixmap()
         self.map = image.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.FastTransformation)
         # By default you cannot draw
         self.currentColor = QColor("Transparent")
@@ -113,15 +113,25 @@ class Menu(QMainWindow):
         self.colorLayout.addWidget(brownSelector)
         self.colorLayout.addWidget(eraserSelector)
 
-        self.buttonBox.setGeometry(QRect(0, self.mapLabel.pixmap().height(), self.mapLabel.pixmap().width(), 50))
+        self.buttonBox.setGeometry(QRect(0, 680, 1200, 50))
+
+        # Menubar
+        self.menu = self.menuBar()
+        quitMenu = self.menu.addMenu('&File')
+        exitAct = QAction('&Exit', self)
+        quitMenu.addAction(exitAct)
+        exitAct.triggered.connect(app.quit)
 
         # Window settings
-        self.setGeometry(
-            QRect(0, 0, self.mapLabel.pixmap().width(), self.mapLabel.pixmap().height() + self.buttonBox.height()))
-        self.setFixedSize(self.mapLabel.pixmap().width(), self.mapLabel.pixmap().height() + self.buttonBox.height())
+        self.setGeometry(QRect(0, 0, 1200, 730))
+        self.setFixedSize(1200, self.height())
         self.setWindowTitle("CrewMap | @author : Maxime Missichini")
         self.setWindowIcon(QIcon("./assets/icon.png"))
 
+    def createMap(self):
+        painter = QPainter(self)
+        self.mapLabel.setPixmap(self.map)
+        painter.drawPixmap(self.mapLabel.pixmap().rect(), self.mapLabel.pixmap())
 
     def changeColor(self, color):
         self.currentColor = color
@@ -165,6 +175,12 @@ class Menu(QMainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     mainMenu = Menu()
+
+    mainMenu.loop = QEventLoop()
     popUp = chooseMap.ChooseMap(mainMenu)
+    popUp.done.connect(mainMenu.loop.quit)
+    mainMenu.loop.exec_()  # loop while no map is selected
+
+    mainMenu.createMap()
     mainMenu.show()
     sys.exit(app.exec_())

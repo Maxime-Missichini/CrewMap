@@ -1,6 +1,7 @@
 import sys
 
-from PyQt5.QtCore import QRect, Qt
+from PyQt5 import QtCore
+from PyQt5.QtCore import QRect, Qt, pyqtSignal
 from PyQt5.QtGui import QPixmap
 
 import main
@@ -9,12 +10,16 @@ from PyQt5.QtWidgets import QMessageBox, QPushButton, QLayout, QHBoxLayout, QMai
 
 class ChooseMap(QMainWindow):
 
+    # Signals should be outside the def like this
+    done = pyqtSignal()
+
     def __init__(self,Menu):
         super().__init__()
 
+        self.done.connect(Menu.loop.quit)
+
         self.buttonBox = QGroupBox(self)
         self.layout = QHBoxLayout(self.buttonBox)
-        self.done = False
 
         self.skeld = QPushButton("Skeld",self)
         self.skeld.clicked.connect(lambda: self.pickSkeld(Menu))
@@ -39,15 +44,18 @@ class ChooseMap(QMainWindow):
 
     def pickSkeld(self,Menu):
         image = QPixmap("./assets/maps/skeld.png")
-        self.done = True
         Menu.map = image.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.FastTransformation)
+        self.done.emit()
+        self.close()
 
     def pickMira(self,Menu):
         image = QPixmap("./assets/maps/mira.png")
-        self.done = True
         Menu.map = image.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.FastTransformation)
+        self.done.emit()
+        self.close()
 
     def pickPolus(self,Menu):
         image = QPixmap("./assets/maps/polus.png")
-        self.done = True
         Menu.map = image.scaled(1200, 1200, Qt.KeepAspectRatio, Qt.FastTransformation)
+        self.done.emit()
+        self.close()
